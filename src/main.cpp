@@ -4,6 +4,8 @@
 #include <math.h>
 #include "FusionEKF.h"
 #include "tools.h"
+#include <fstream>
+#include <boost/format.hpp>
 
 using namespace std;
 
@@ -38,6 +40,12 @@ int main()
   vector<VectorXd> estimations;
   vector<VectorXd> ground_truth;
 
+  // Initialize header of data log file
+  std::ofstream datfile;
+  datfile.open("../data/datalog.dat", std::ios_base::out);
+  datfile << "time," << "gt_x,gt_y,gt_vx,gt_vy," << "est_x,est_y,est_vx,est_vy," << "rmse_x,rmse_y,rmse_vx,rmse_vy\n";
+  datfile.close();
+  
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -104,12 +112,11 @@ int main()
     	  gt_values(2) = vx_gt;
     	  gt_values(3) = vy_gt;
     	  ground_truth.push_back(gt_values);
-          
+
           //Call ProcessMeasurment(meas_package) for Kalman filter
     	  fusionEKF.ProcessMeasurement(meas_package);    	  
 
     	  //Push the current estimated x,y positon from the Kalman filter's state vector
-
     	  VectorXd estimate(4);
 
     	  double p_x = fusionEKF.ekf_.x_(0);
@@ -136,7 +143,24 @@ int main()
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-	  
+		 
+		  // write data to file for analysis
+		  std::ofstream datfile;
+		  datfile.open("../data/datalog.dat", std::ios_base::out | std::ios_base::app);
+ 	      datfile << boost::str(boost::format("%d") % timestamp) << ','
+				  << boost::str(boost::format("%.3f") % gt_values(0)) << ','
+			      << boost::str(boost::format("%.3f") % gt_values(1)) << ','
+				  << boost::str(boost::format("%.3f") % gt_values(2)) << ','
+				  << boost::str(boost::format("%.3f") % gt_values(3)) << ','
+				  << boost::str(boost::format("%.3f") % estimate(0)) << ','
+				  << boost::str(boost::format("%.3f") % estimate(1)) << ','
+				  << boost::str(boost::format("%.3f") % estimate(2)) << ','
+				  << boost::str(boost::format("%.3f") % estimate(3)) << ','
+				  << boost::str(boost::format("%.3f") % RMSE(0)) << ','
+				  << boost::str(boost::format("%.3f") % RMSE(1)) << ','
+				  << boost::str(boost::format("%.3f") % RMSE(2)) << ','
+				  << boost::str(boost::format("%.3f") % RMSE(3)) << '\n';
+		  datfile.close();
         }
       } else {
         
@@ -146,6 +170,7 @@ int main()
     }
 
   });
+  datfile.close();
 
   // We don't need this since we're not using HTTP but if it's removed the program
   // doesn't compile :-(

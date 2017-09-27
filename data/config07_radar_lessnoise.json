@@ -1,0 +1,13 @@
+{
+	"EKF" : {
+		"radar_enabled" : 1,
+		"laser_enabled" : 0,
+		"noise_ax" : 9,
+		"noise_ay" : 9,
+		"noise_laser11" : 0.0225,
+		"noise_laser22" : 0.0225,
+		"noise_radar11" : 0.04,
+		"noise_radar22" : 0.0001,
+		"noise_radar33" : 0.04
+	}
+}
