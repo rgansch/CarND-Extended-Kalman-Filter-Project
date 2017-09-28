@@ -5,7 +5,7 @@
 #include "FusionEKF.h"
 #include "tools.h"
 #include <fstream>
-#include <boost/format.hpp>
+//#include <boost/format.hpp>
 
 using namespace std;
 
@@ -41,10 +41,10 @@ int main()
   vector<VectorXd> ground_truth;
 
   // Initialize header of data log file
-  std::ofstream datfile;
+/*  std::ofstream datfile;
   datfile.open("../data/datalog.dat", std::ios_base::out);
   datfile << "time," << "gt_x,gt_y,gt_vx,gt_vy," << "est_x,est_y,est_vx,est_vy," << "rmse_x,rmse_y,rmse_vx,rmse_vy\n";
-  datfile.close();
+  datfile.close();*/
   
   h.onMessage([&fusionEKF,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
@@ -144,7 +144,7 @@ int main()
           // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 		 
-		  // write data to file for analysis
+/*		  // write data to file for analysis
 		  std::ofstream datfile;
 		  datfile.open("../data/datalog.dat", std::ios_base::out | std::ios_base::app);
  	      datfile << boost::str(boost::format("%d") % timestamp) << ','
@@ -160,7 +160,7 @@ int main()
 				  << boost::str(boost::format("%.3f") % RMSE(1)) << ','
 				  << boost::str(boost::format("%.3f") % RMSE(2)) << ','
 				  << boost::str(boost::format("%.3f") % RMSE(3)) << '\n';
-		  datfile.close();
+		  datfile.close();*/
         }
       } else {
         
